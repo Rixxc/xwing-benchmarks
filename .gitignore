@@ -1,3 +1,6 @@
 .ci
 *.tar.gz
 libjade-*
+.vscode
+*.so
+*.csv

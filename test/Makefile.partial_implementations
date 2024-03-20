@@ -1,46 +1,109 @@
-EXTERNAL_PATH    = $(subst $(BIN),external,$(@D))
-EXTERNAL_LIB     = $(EXTERNAL_PATH)/$(subst -,_,$(subst /,_,$(EXTERNAL_PATH))).a
-EXTERNAL_COMPILE = $(CC) $(CFLAGS) -o $@ $(DEFINE) $(DNAMESPACES) $(INCLUDES) crypto_$(OPERATION)/$(@F).c $(PRINT) $(ASM) $(RANDSRC) $(EXTERNAL_LIB) $(CIL)
+EXTERNAL_PATH       = $(subst $(BIN),external,$(@D))
+EXTERNAL_LIB_STATIC = $(EXTERNAL_PATH)/$(subst -,_,$(subst /,_,$(EXTERNAL_PATH))).a
+EXTERNAL_LIB_SHARED = $(abspath $(EXTERNAL_PATH)/$(subst -,_,$(subst /,_,$(EXTERNAL_PATH))).so)
+EXTERNAL_COMPILE1   = $(CC) $(CFLAGS) -o $@ $(DEFINE) $(DNAMESPACES) $(INCLUDES) crypto_$(OPERATION)/$(@F).c $(PRINT) $(ASM) $(RANDSRC) $(EXTERNAL_LIB_STATIC) $(CIL)
+EXTERNAL_COMPILE2   = $(CC) $(CFLAGS) -o $@ $(DEFINE) $(DNAMESPACES) $(INCLUDES) crypto_$(OPERATION)/$(@F).c $(PRINT) $(ASM) $(RANDSRC) $(EXTERNAL_LIB_SHARED)
 
-
+#-- ---------------------------------------------------------------------------
 #-- falcon512
 
 bin/crypto_sign/falcon/falcon512/amd64/avx2/checksumsmall: __phony | bin/crypto_sign/falcon/falcon512/amd64/avx2/ bin/crypto_sign/falcon/falcon512/amd64/avx2/$(CID)
 	$(MAKE) -C $(IDIR) || true
 	$(CIC)
 	$(MAKE) -C $(EXTERNAL_PATH)
-	$(EXTERNAL_COMPILE) || true
+	$(EXTERNAL_COMPILE1) || true
 
 bin/crypto_sign/falcon/falcon512/amd64/avx2/checksumbig: __phony | bin/crypto_sign/falcon/falcon512/amd64/avx2/ bin/crypto_sign/falcon/falcon512/amd64/avx2/$(CID)
 	$(MAKE) -C $(IDIR) || true
 	$(CIC)
 	$(MAKE) -C $(EXTERNAL_PATH)
-	$(EXTERNAL_COMPILE) || true
+	$(EXTERNAL_COMPILE1) || true
 
 bin/crypto_sign/falcon/falcon512/amd64/avx2/printparams: __phony | bin/crypto_sign/falcon/falcon512/amd64/avx2/ bin/crypto_sign/falcon/falcon512/amd64/avx2/$(CID)
 	$(MAKE) -C $(IDIR) || true
 	$(CIC)
 	$(MAKE) -C $(EXTERNAL_PATH)
-	$(EXTERNAL_COMPILE) || true
+	$(EXTERNAL_COMPILE1) || true
 
 bin/crypto_sign/falcon/falcon512/amd64/avx2/functest: __phony | bin/crypto_sign/falcon/falcon512/amd64/avx2/ bin/crypto_sign/falcon/falcon512/amd64/avx2/$(CID)
 	$(MAKE) -C $(IDIR) || true
 	$(CIC)
 	$(MAKE) -C $(EXTERNAL_PATH)
-	$(EXTERNAL_COMPILE) || true
+	$(EXTERNAL_COMPILE1) || true
 
 bin/crypto_sign/falcon/falcon512/amd64/avx2/safetyflags: __phony | bin/crypto_sign/falcon/falcon512/amd64/avx2/ bin/crypto_sign/falcon/falcon512/amd64/avx2/$(CID)
 	$(MAKE) -C $(IDIR) || true
 	$(CIC)
 	$(MAKE) -C $(EXTERNAL_PATH)
-	$(EXTERNAL_COMPILE) || true
+	$(EXTERNAL_COMPILE1) || true
 
 bin/crypto_sign/falcon/falcon512/amd64/avx2/memory: __phony | bin/crypto_sign/falcon/falcon512/amd64/avx2/ bin/crypto_sign/falcon/falcon512/amd64/avx2/$(CID)
 	$(MAKE) -C $(IDIR) || true
 	$(CIC)
 	$(MAKE) -C $(EXTERNAL_PATH)
-	$(EXTERNAL_COMPILE) || true
+	$(EXTERNAL_COMPILE1) || true
+
+
+# note: the following variable could actually be declared in the main Makefile and be used to shorten it (but making it also slightly more complicated); for the sake of this 
+# exercise, it will stay here
+TESTING_BINARIES:=checksumsmall checksumbig printparams functest safetyparams memory
+
+#-- ---------------------------------------------------------------------------
+#-- xwing
+
+#--
+XWING_C_REF_DIR:=bin/crypto_kem/xwing/amd64/c-ref/
+XWING_C_REF_BINARIES:=$(foreach bin,$(TESTING_BINARIES),$(XWING_C_REF_DIR)$(bin))
+
+$(XWING_C_REF_BINARIES): __phony | $(XWING_C_REF_DIR) $(XWING_C_REF_DIR)/$(CID)
+	$(MAKE) -C $(IDIR) || true
+	$(CIC)
+	$(MAKE) -C $(EXTERNAL_PATH)
+	$(EXTERNAL_COMPILE2) -l25519 $(CIL) || true
+
+#--
+XWING_C_AVX2_DIR:=bin/crypto_kem/xwing/amd64/c-avx2/
+XWING_C_AVX2_BINARIES:=$(foreach bin,$(TESTING_BINARIES),$(XWING_C_AVX2_DIR)$(bin))
+
+$(XWING_C_AVX2_BINARIES): __phony | $(XWING_C_AVX2_DIR) $(XWING_C_AVX2_DIR)/$(CID)
+	$(MAKE) -C $(IDIR) || true
+	$(CIC)
+	$(MAKE) -C $(EXTERNAL_PATH)
+	$(EXTERNAL_COMPILE2) -l25519 $(CIL) || true
+
+#-- ---------------------------------------------------------------------------
+#-- xwing_naive
+
+#--
+XWING_NAIVE_C_AVX2_DIR:=bin/crypto_kem/xwing_naive/amd64/c-avx2/
+XWING_NAIVE_C_AVX2_BINARIES:=$(foreach bin,$(TESTING_BINARIES),$(XWING_NAIVE_C_AVX2_DIR)$(bin))
+
+$(XWING_NAIVE_C_AVX2_BINARIES): __phony | $(XWING_NAIVE_C_AVX2_DIR) $(XWING_NAIVE_C_AVX2_DIR)/$(CID)
+	$(MAKE) -C $(IDIR) || true
+	$(CIC)
+	$(MAKE) -C $(EXTERNAL_PATH)
+	$(EXTERNAL_COMPILE2) -l25519 $(CIL) || true
+
+#-- ---------------------------------------------------------------------------
+#-- sha3fips
+
+#--
+SHA3_256_C_AVX2_DIR:=bin/crypto_hash/sha3-256/amd64/c-avx2/
+SHA3_256_C_AVX2_BINARIES:=$(foreach bin,$(TESTING_BINARIES),$(SHA3_256_C_AVX2_DIR)$(bin))
+
+$(SHA3_256_C_AVX2_BINARIES): __phony | $(SHA3_256_C_AVX2_DIR) $(SHA3_256_C_AVX2_DIR)/$(CID)
+	$(MAKE) -C $(IDIR) || true
+	$(CIC)
+	$(MAKE) -C $(EXTERNAL_PATH)
+	$(EXTERNAL_COMPILE2) $(CIL) || true
 
 #-- clean
 clean-external:
 	$(MAKE) -C external/crypto_sign/falcon/falcon512/amd64/avx2 clean
+	$(MAKE) -C external/crypto_kem/xwing/common/JoaoDiogoDuarte_xwing/src/crypto_kem/xwing/ref/ clean
+	$(MAKE) -C external/crypto_kem/xwing/common/JoaoDiogoDuarte_xwing/src/crypto_kem/xwing/avx2/ clean
+	$(MAKE) -C external/crypto_kem/xwing/common/JoaoDiogoDuarte_xwing_naive/src/crypto_kem/xwing_naive/avx2/ clean
+	$(MAKE) -C external/crypto_hash/sha3-256/common/Kyber_FIPS202/avx2/ clean
+
+
+

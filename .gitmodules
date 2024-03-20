@@ -3,4 +3,17 @@
 	url = https://github.com/tyhicks/ssbd-tools.git
 [submodule "submodules/crypto-specs"]
 	path = submodules/crypto-specs
-	url = git@github.com:formosa-crypto/crypto-specs.git
+	url = https://github.com/formosa-crypto/crypto-specs.git
+[submodule "test/external/crypto_kem/xwing/common/JoaoDiogoDuarte_xwing"]
+	path = test/external/crypto_kem/xwing/common/JoaoDiogoDuarte_xwing
+	url = https://github.com/JoaoDiogoDuarte/xwing.git
+[submodule "test/external/crypto_hash/sha3-256/common/Kyber_FIPS202"]
+	path = test/external/crypto_hash/sha3-256/common/Kyber_FIPS202
+	url = https://github.com/JoaoDiogoDuarte/kyber-mlkem-static/
+	branch = justhash
+[submodule "test/external/crypto_kem/xwing_naive/common/JoaoDDuarte_xwing_naive"]
+	path = test/external/crypto_kem/xwing_naive/common/JoaoDDuarte_xwing_naive
+	url = https://github.com/JoaoDiogoDuarte/xwing.git
+[submodule "test/external/crypto_kem/xwing_naive/common/JoaoDiogoDuarte_xwing_naive"]
+	path = test/external/crypto_kem/xwing_naive/common/JoaoDiogoDuarte_xwing_naive
+	url = https://github.com/JoaoDiogoDuarte/xwing.git

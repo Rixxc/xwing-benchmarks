@@ -1,0 +1,2 @@
+lib25519 (-> libcpucycles; librandombytes (-> libssl-dev) )
+libsodium

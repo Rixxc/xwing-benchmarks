@@ -30,10 +30,15 @@ static size_t inc_2(size_t len)
   return len << 1;
 }
 
-static size_t size_inc_2(size_t start, size_t end)
+static size_t inc_1088(size_t len)
+{
+  return len + 1088;
+}
+
+static size_t size_inc_1088(size_t start, size_t end)
 {
   size_t i, r=0;
-  for(i = start; i <= end; i = inc_2(i))
+  for(i = start; i <= end; i = inc_1088(i))
   { r += 1; }
   return r;
 }

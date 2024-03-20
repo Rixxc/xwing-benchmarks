@@ -1,5 +1,4 @@
 # Libjade
-
 Libjade is a formally verified cryptographic library written in 
 [the jasmin programming language](https://github.com/jasmin-lang/jasmin)
 with computer-verified proofs in [EasyCrypt](https://github.com/EasyCrypt/easycrypt).
